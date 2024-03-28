@@ -11,7 +11,7 @@ task hapdiff_t {
     Int threads = 32
     Int memSizeGb = 128
     Int diskSizeGb = 256
-    String dockerContainer = "mkolmogo/hapdiff:0.8"
+    String dockerContainer = "mkolmogo/hapdiff:0.9"
   }
 
   String trfString = if defined(vntrAnnotations) then "--tandem-repeats " else ""
@@ -27,6 +27,9 @@ task hapdiff_t {
   output {
     File hapdiffUnphasedVcf = "hapdiff/hapdiff_unphased.vcf.gz"
     File hapdiffPhasedVcf = "hapdiff/hapdiff_phased.vcf.gz"
+    File confidentBed = "hapdiff/confident_regions.bed"
+    File alignmentBedHap1 = "hapdiff/aln_coverage_pat.bed"
+    File alignmentBedHap2 = "hapdiff/aln_coverage_mat.bed"
     File hapdiffLog = "hapdiff.log"
   }
 

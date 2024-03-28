@@ -29,5 +29,8 @@ workflow hapdiffWf {
 	output {
 		File vcfUnphased = hapdiff_t.hapdiffUnphasedVcf
 		File vcfPhased = hapdiff_t.hapdiffPhasedVcf
+		File confidentBed = hapdiff_t.confidentBed
+		File alignmentBedHap1 = hapdiff_t.alignmentBedHap1
+		File alignmentBedHap2 = hapdiff_t.alignmentBedHap2
 	}
 }
