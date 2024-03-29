@@ -8,7 +8,7 @@ workflow snifflesWf {
         File bamAlignment
         File bamAlignmentIndex
         String sample
-        File vntrAnnotations
+        File? vntrAnnotations
         Boolean phaseVariants
         Int threads
     }
