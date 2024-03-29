@@ -8,6 +8,7 @@ task sniffles_t {
     File? vntrAnnotations
     String sample = "sniffles"
     Boolean phaseVariants = true
+    String extraArgs = ""
     Int minSvLen = 25
     Int memSizeGb = 32
     Int diskSizeGb = 256
@@ -33,7 +34,7 @@ task sniffles_t {
     ln -s ~{bamAlignmentIndex} reads.bam.bai
     
     sniffles -i reads.bam -v ~{sample}.sniffles.vcf --snf ~{sample}.snf -t ~{threads} ~{trfString}~{vntrAnnotations} \
-      ~{phaseArg} --minsvlen ~{minSvLen} 2>&1 | tee ~{sample}_sniffles.log
+      ~{phaseArg} --minsvlen ~{minSvLen} ~{extraArgs} 2>&1 | tee ~{sample}_sniffles.log
 
   >>>
 
