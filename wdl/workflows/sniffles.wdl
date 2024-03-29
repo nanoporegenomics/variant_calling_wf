@@ -9,6 +9,7 @@ workflow snifflesWf {
         File bamAlignmentIndex
         String sample
         File vntrAnnotations
+        Boolean phaseVariants
         Int threads
     }
 
@@ -19,7 +20,8 @@ workflow snifflesWf {
 			bamAlignment=bamAlignment,
             bamAlignmentIndex=bamAlignmentIndex,
             sample=sample,
-			vntrAnnotations=vntrAnnotations
+			vntrAnnotations=vntrAnnotations,
+            phaseVariants=phaseVariants
     }
 
 	output {

@@ -7,6 +7,7 @@ task sniffles_t {
     File bamAlignmentIndex
     File? vntrAnnotations
     String sample = "sniffles"
+    Boolean phaseVariants = true
     Int minSvLen = 25
     Int memSizeGb = 32
     Int diskSizeGb = 256
@@ -14,6 +15,8 @@ task sniffles_t {
   }
 
   String trfString = if defined(vntrAnnotations) then "--tandem-repeats " else ""
+  String phaseArg = if phaseVariants then "--phase " else ""
+
   command <<<
     set -o pipefail
     set -e
@@ -29,7 +32,9 @@ task sniffles_t {
     ln -s ~{bamAlignment} reads.bam
     ln -s ~{bamAlignmentIndex} reads.bam.bai
     
-    sniffles -i reads.bam -v ~{sample}.sniffles.vcf --snf ~{sample}.snf -t ~{threads} ~{trfString}~{vntrAnnotations} --minsvlen ~{minSvLen} 2>&1 | tee ~{sample}_sniffles.log
+    sniffles -i reads.bam -v ~{sample}.sniffles.vcf --snf ~{sample}.snf -t ~{threads} ~{trfString}~{vntrAnnotations} \
+      ~{phaseArg} --minsvlen ~{minSvLen} 2>&1 | tee ~{sample}_sniffles.log
+
   >>>
 
   output {
