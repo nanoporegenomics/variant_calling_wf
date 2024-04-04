@@ -74,6 +74,5 @@ task glnexus {
         cpu: threadCount
         disks: "local-disk " + diskSizeGB + " SSD"
         docker: dockerImage
-        preemptible: 2
     }
 }
