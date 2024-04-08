@@ -30,6 +30,8 @@ task modkit {
 
     String sample_name_ref = "~{sample_name}"+"_"+"~{ref_name}"
     Boolean regionaly =  defined(regional_bed)
+    String regional_arg = "--include-bed "+"~{regional_bed}"
+    String unphased_outFile = "modkit_out/" +"~{sample_name_ref}"+".bed"
 
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
@@ -50,15 +52,17 @@ task modkit {
 
         # note output format: https://nanoporetech.github.io/modkit/intro_bedmethyl.html
         # filtering threshold default 10-th percentile of calls https://github.com/nanoporetech/modkit/blob/master/filtering.md
-        if [ ~{regionaly} == true ]
+        if [ ~{partitionTag} == true ]
         then
-            modkit pileup ~{out_type_filter} ~{true="--partition-tag HP" false="" partitionTag} --prefix ~{sample_name_ref} --ref ~{ref} \
-                   --threads ~{threadCount} --include-bed ~{regional_bed} --only-tabs ~{extraArgs} reads.bam modkit_out
+            modkit pileup ~{out_type_filter} --partition-tag HP --prefix ~{sample_name_ref} --ref ~{ref} \
+                   --threads ~{threadCount} --only-tabs ~{extraArgs} reads.bam modkit_out
+        fi
 
-
-        else
+        if [ ~{partitionTag} == false ]
+        then
             # modkit command with reference on input reads
-            modkit pileup ~{out_type_filter} ~{true="--partition-tag HP" false="" partitionTag} --prefix ~{sample_name_ref} --ref ~{ref} --threads ~{threadCount} --only-tabs ~{extraArgs} reads.bam modkit_out
+            modkit pileup ~{out_type_filter} --prefix ~{sample_name_ref} --ref ~{ref} \
+                    --threads ~{threadCount} --only-tabs ~{extraArgs} reads.bam ~{unphased_outFile}
         fi
 
         if [ ~{partitionTag} == true ]
@@ -76,7 +80,7 @@ task modkit {
             File? hap1bedOut      = "modkit_out/~{sample_name_ref}_1.bed.gz"
             File? hap2bedOut      = "modkit_out/~{sample_name_ref}_2.bed.gz"
             File? ungroupedBedOut      = "modkit_out/~{sample_name_ref}_ungrouped.bed.gz"
-            File? wholeGenomeOut  = "modkit_out/~{sample_name_ref}.bed"
+            File? wholeGenomeOut  = "modkit_out/~{sample_name_ref}.bed.gz"
             File? toplog = "top.log"
     }
 
