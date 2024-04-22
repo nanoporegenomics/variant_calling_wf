@@ -36,3 +36,6 @@ workflows:
    -  name: glnexus
       subclass: WDL
       primaryDescriptorPath: /wdl/cohort_wdl/workflows/glnexus.wdl
+   -  name: bcftools
+      subclass: WDL
+      primaryDescriptorPath: /wdl/cohort_wdl/tasks/bcftools.wdl
