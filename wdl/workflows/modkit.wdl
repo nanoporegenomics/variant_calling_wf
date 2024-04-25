@@ -9,7 +9,6 @@ workflow modkit_wf
 		File  haplotaggedBamIdx
 		File  referenceFasta
 		File? regional_bed
-		Boolean haplotagged_beds = true
 		Boolean run_pileup = true
 		Boolean run_probs = false
 		String  sampleName = "sample"
