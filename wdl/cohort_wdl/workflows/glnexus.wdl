@@ -94,22 +94,23 @@ task filterVCF {
         String dockerImage = "quay.io/mlin/glnexus:v1.2.7"
     }
     
+    String filtFile = basename(input_vcf)
     command <<<
         # exit when a command fails, fail with unset variables, print commands before execution
         set -eux -o pipefail
         set -o xtrace
         # Define a temp file for filtering
-        tmp_file=~{input_vcf}.tmp
+        #tmp_file=basename(~{input_vcf}).filt.vcf.gz
         
         # Remove 'NoCall' lines and write to the temporary file
-        bgzip -dc ~{input_vcf} | grep -v NoCall | bgzip > $tmp_file
+        bgzip -dc ~{input_vcf} | grep -v NoCall | bgzip > ~{filtFile}.filt.vcf.gz
         
         # Rename the temporary file to the input VCF name to save space
-        mv $tmp_file ~{input_vcf}
+        #mv $tmp_file ~{input_vcf}
     >>>
 
     output {
-        File filtered_vcf = "~{input_vcf}"
+        File filtered_vcf = "~{filtFile}.filt.vcf.gz"
     }
     runtime {
         memory: memSizeGB + " GB"
