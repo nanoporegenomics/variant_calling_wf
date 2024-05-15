@@ -1,4 +1,5 @@
 FROM ubuntu:20.04
+FROM python:3.9
 MAINTAINER Melissa Meredith, mmmeredi@ucsc.edu
 
 RUN mkdir -p /home/apps
