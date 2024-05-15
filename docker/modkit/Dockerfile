@@ -39,10 +39,14 @@ WORKDIR /home/apps
 RUN wget https://github.com/nanoporetech/modkit/releases/download/v0.2.0/modkit_v0.2.0_centos7_x86_64.tar.gz && \
     tar -xvzf modkit_v0.2.0_centos7_x86_64.tar.gz
 
+WORKDIR /home/apps
+RUN git clone --recursive https://github.com/meredith705/methyl_read_grouping.git
+
 ENV PATH="/home/apps/samtools-1.15.1:${PATH}"
 ENV PATH="/home/apps/minimap2-2.24:/opt/minimap2/minimap2-2.24/misc:$PATH"
 ENV PATH="/home/apps/k8-0.2.5:$PATH"
 ENV PATH="/home/apps/dist:${PATH}"
+ENV PATH="/home/apps/methyl_read_grouping/methlotype:$PATH"
 
 
 RUN mkdir -p /data
