@@ -30,9 +30,9 @@ workflows:
    -  name: modkit
       subclass: WDL
       primaryDescriptorPath: /wdl/workflows/modkit.wdl
-   -  name: modbamtools
+   -  name: regionalMethylation
       subclass: WDL
-      primaryDescriptorPath: /wdl/workflows/modbamtools.wdl
+      primaryDescriptorPath: /wdl/workflows/regionalMethylation.wdl
    -  name: glnexus
       subclass: WDL
       primaryDescriptorPath: /wdl/cohort_wdl/workflows/glnexus.wdl
