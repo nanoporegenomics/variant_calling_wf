@@ -93,8 +93,7 @@ task modkit {
     }
 }
 
-
-task modbamtools {
+task regionalMethylation {
     input {
         File haplotaggedBam
         File haplotaggedBamBai
@@ -103,7 +102,9 @@ task modbamtools {
         String region_type
         String sample_name
         String ref_name = "ref"
-        String hap_sparated_stats = "--hap"
+        Int min_ml_prob = 200
+        Int make_heatmap = 0
+        #String hap_sparated_stats = "--hap"
         String? extraArgs = ""
         Int memSizeGB = 64
         Int threadCount = 16
@@ -122,7 +123,7 @@ task modbamtools {
 
     }
 
-    String out_sample_name_ref = "calcmeth_"+"~{sample_name}"+"_"+"~{ref_name}"+"_"+"~{region_type}"+".bed"
+    String out_sample_name_ref = "~{sample_name}"+"_"+"~{ref_name}"+"_"+"~{region_type}"+".bed"
 
 
     command <<<
@@ -137,15 +138,11 @@ task modbamtools {
             bash ~{resourceLogScript} 20 top.log &
         fi
 
-        modbamtools calcMeth --bed ~{regional_bed} \
-        --threads ~{threadCount} \
-        ~{hap_sparated_stats} \
-        --out ~{out_sample_name_ref} \
-        ~{haplotaggedBam}
+        python3 /home/apps/methyl_read_grouping/methlotype/regionalMethylation.py -b ~{haplotaggedBam} -s ~{sample_name} -d ~{regional_bed} -e ~{ref_name}_~{region_type} -p ~{min_ml_prob} --heatmap ~{make_heatmap}
 
     >>>
       output {
-        File regionally_aggregated_bed = "~{out_sample_name_ref}"
+        File regionally_aggregated_bed = "~{sample_name}"+"_"+"~{ref_name}"+"_"+"~{region_type}"+".bed"
         File? toplog = "top.log"
       }
 
@@ -157,6 +154,9 @@ task modbamtools {
         disks: "local-disk " + diskSizeGB + " SSD"
       }
 }
+
+
+
 
 task plot_ML_hist {
     input {

@@ -7,10 +7,11 @@ RUN mkdir -p /home/apps
 RUN cd /home/apps && \
     apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get install -y vim git wget make build-essential cmake \
-    tabix python3.9 python3.9-dev python3-pip \
+    tabix python3.8 python3.8-dev python3-pip \
     protobuf-compiler pkg-config libprotobuf-dev libjansson-dev libhts-dev libncurses-dev \
     libbz2-dev liblzma-dev zlib1g-dev autoconf libcurl4-openssl-dev curl libomp-dev libssl-dev python3-tk && \
-    pip3 install modbamtools
+    pip3 install pysam matplotlib numpy pandas seaborn scikit-learn scipy scikit-network IPython
+
 
 WORKDIR /home/apps
 RUN wget https://github.com/samtools/samtools/releases/download/1.15.1/samtools-1.15.1.tar.bz2 && \
@@ -46,6 +47,7 @@ ENV PATH="/home/apps/samtools-1.15.1:${PATH}"
 ENV PATH="/home/apps/minimap2-2.24:/opt/minimap2/minimap2-2.24/misc:$PATH"
 ENV PATH="/home/apps/k8-0.2.5:$PATH"
 ENV PATH="/home/apps/dist:${PATH}"
+ENV PATH="/home/apps/methyl_read_grouping/methlotype/:$PATH"
 ENV PATH="/home/apps/methyl_read_grouping/methlotype/regionalMethylation.py:$PATH"
 
 
