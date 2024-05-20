@@ -138,7 +138,7 @@ task regionalMethylation {
             bash ~{resourceLogScript} 20 top.log &
         fi
 
-        python3 /home/apps/methyl_read_grouping/methlotype/regionalMethylation.py -b ~{haplotaggedBam} -s ~{sample_name} -d ~{regional_bed} -e ~{ref_name}_~{region_type} -p ~{min_ml_prob} --heatmap ~{make_heatmap}
+        python3 /home/apps/methyl_read_grouping/methlotype/regionalMethylation.py -b ~{haplotaggedBam} -s ~{sample_name} -d ~{regional_bed} -e ~{ref_name}_~{region_type} -p ~{min_ml_prob} --heatmap ~{make_heatmap} ~{extraArgs}
 
     >>>
       output {
