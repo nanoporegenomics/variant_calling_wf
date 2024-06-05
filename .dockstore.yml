@@ -39,6 +39,6 @@ workflows:
    -  name: bcftools
       subclass: WDL
       primaryDescriptorPath: /wdl/cohort_wdl/tasks/bcftools.wdl
-   -  name: bedtoolsMap
+   -  name: bedtoolsMapwf
       subclass: WDL
-      primaryDescriptorPath: /wdl/tasks/bedtoolsMap.wdl
+      primaryDescriptorPath: /wdl/workflows/bedtoolsMap.wdl
