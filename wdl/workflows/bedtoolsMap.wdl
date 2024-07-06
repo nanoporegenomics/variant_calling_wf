@@ -122,8 +122,8 @@ task calcMeth {
 task calcMeth_phased {
 
     parameter_meta {
-        COV: "(OPTIONAL) Valid coverage threshold for filtering CpGs. Default: 3"
-        MIN_CPG: "(OPTIONAL) Minimum number of CpGs required for regional methylation calculation. Default: 10"
+        cov: "(OPTIONAL) Valid coverage threshold for filtering CpGs. Default: 3"
+        min_cpg: "(OPTIONAL) Minimum number of CpGs required for regional methylation calculation. Default: 10"
     }
 
     input {
