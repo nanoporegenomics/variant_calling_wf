@@ -93,8 +93,8 @@ task calcMeth {
         # Count number of "well-covered" CpGs per target region
         bedtools map -a regions.sort.bed -b samp.comb.bed -c 11 -o count > ~{sample}.comb.filt.regionCount.bed
 
-		# For regions with total number of CpGs < ~{min_cpg}, output "-1"
-		awk -v m=~{min_cpg} 'FNR==NR { if ($NF != 0) a[FNR] = $NF; next } { if (a[FNR] >= m) print $NF/a[FNR]; else print "-1" }' ~{sample}.comb.unfilt.regionCount.bed ~{sample}.comb.filt.regionCount.bed > ratios.txt
+        # For regions with total number of CpGs < ~{min_cpg}, output "-1"
+        awk -v m=~{min_cpg} 'FNR==NR { if ($NF != 0) a[FNR] = $NF; next } { if (a[FNR] >= m) print $NF/a[FNR]; else print "-1" }' ~{sample}.comb.unfilt.regionCount.bed ~{sample}.comb.filt.regionCount.bed > ratios.txt
 
         rm -rf *regionCount.bed samp.comb.UF.bed
         # Add frac_wellcov_CpGs column to regionalMethyl BED
@@ -149,28 +149,28 @@ task calcMeth_phased {
         FID=1
         for FF in ~{sep=" " bedMethyls}
         do
-			zcat $FF | sort -k1,1 -k2,2n -k3,3n > samp.hp${FID}.UF.bed
+            zcat $FF | sort -k1,1 -k2,2n -k3,3n > samp.hp${FID}.UF.bed
             # Remove mods with coverage<4 and sort file to match sorting criteria with regions_bed
             awk -v c=~{cov} '$5>=c' samp.hp${FID}.UF.bed > samp.hp${FID}.bed
-			
+
             # Sort regions file
             sort -k1,1 -k2,2n -k3,3n ~{regions_bed} > regions.sort.bed
 
-			# Count number of "total" measured CpGs per target region
-			bedtools map -a regions.sort.bed -b samp.hp${FID}.UF.bed -c 11 -o count > ~{sample}.hp${FID}.unfilt.regionCount.bed
-			# Count number of "well-covered" CpGs per target region
-			bedtools map -a regions.sort.bed -b samp.hp${FID}.bed -c 11 -o count > ~{sample}.hp${FID}.filt.regionCount.bed
-			
-			# For regions with total number of CpGs < ~{min_cpg}, output "-1"
-			awk -v m=~{min_cpg} 'FNR==NR { if ($NF != 0) a[FNR] = $NF; next } { if (a[FNR] >= m) print $NF/a[FNR]; else print "-1" }' ~{sample}.hp${FID}.unfilt.regionCount.bed ~{sample}.hp${FID}.filt.regionCount.bed > ratios.txt
+            # Count number of "total" measured CpGs per target region
+            bedtools map -a regions.sort.bed -b samp.hp${FID}.UF.bed -c 11 -o count > ~{sample}.hp${FID}.unfilt.regionCount.bed
+            # Count number of "well-covered" CpGs per target region
+            bedtools map -a regions.sort.bed -b samp.hp${FID}.bed -c 11 -o count > ~{sample}.hp${FID}.filt.regionCount.bed
+
+            # For regions with total number of CpGs < ~{min_cpg}, output "-1"
+            awk -v m=~{min_cpg} 'FNR==NR { if ($NF != 0) a[FNR] = $NF; next } { if (a[FNR] >= m) print $NF/a[FNR]; else print "-1" }' ~{sample}.hp${FID}.unfilt.regionCount.bed ~{sample}.hp${FID}.filt.regionCount.bed > ratios.txt
 
             rm -rf *regionCount.bed samp.hp${FID}.UF.bed
-			# Add frac_wellcov_CpGs column to regionalMethyl BED
-			paste regions.sort.bed ratios.txt | awk '{OFS="\t"}{print $0}' > regions.ratios.bed
-            
-			# Calculate mean methylation per region
+            # Add frac_wellcov_CpGs column to regionalMethyl BED
+            paste regions.sort.bed ratios.txt | awk '{OFS="\t"}{print $0}' > regions.ratios.bed
+
+            # Calculate mean methylation per region
             bedtools map -a regions.ratios.bed -b samp.hp${FID}.bed -c 11 -o mean > "~{sample}.hp${FID}.~{suffix}"
-			FID=$((FID+1))
+            FID=$((FID+1))
         done        
 
     >>>
