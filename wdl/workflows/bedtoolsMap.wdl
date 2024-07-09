@@ -79,7 +79,7 @@ task calcMeth {
 
         set -eux -o pipefail
 
-        zcat ~{bedMethyl} | sort -k1,1 -k2,2n -k3,3n > samp.comb.UF.bed
+        zcat ~{bedMethyl} | awk 'BEGIN { OFS="\t" } { for (i = 1; i <= NF; i++) printf "%s%s", $i, (i==NF ? ORS : OFS) }' | sort -k1,1 -k2,2n -k3,3n > samp.comb.UF.bed
         # Remove mods low coverage and sort file to match sorting criteria with regions_bed
         awk -v c=~{cov} '$5>=c' samp.comb.UF.bed > samp.comb.bed
         head samp.comb.bed
@@ -149,7 +149,7 @@ task calcMeth_phased {
         FID=1
         for FF in ~{sep=" " bedMethyls}
         do
-            zcat $FF | sort -k1,1 -k2,2n -k3,3n > samp.hp${FID}.UF.bed
+            zcat $FF | awk 'BEGIN { OFS="\t" } { for (i = 1; i <= NF; i++) printf "%s%s", $i, (i==NF ? ORS : OFS) }' | sort -k1,1 -k2,2n -k3,3n > samp.hp${FID}.UF.bed
             # Remove mods with coverage<4 and sort file to match sorting criteria with regions_bed
             awk -v c=~{cov} '$5>=c' samp.hp${FID}.UF.bed > samp.hp${FID}.bed
 
