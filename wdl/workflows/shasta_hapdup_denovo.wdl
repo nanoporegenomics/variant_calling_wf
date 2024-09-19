@@ -9,6 +9,10 @@ workflow structuralVariantsDenovoAssembly {
     input {
         File readsFile
         File? shastaFasta
+        File? shastaGFA
+        File? shastaHTML
+        File? shastaLOG
+        File? readAlign
         Boolean shastaInMem = false
         String extraShastaArgs = ""
         Array[File] chunkedReadsFiles = []
@@ -47,41 +51,48 @@ workflow structuralVariantsDenovoAssembly {
                 diskSizeGb=shastaDiskSizeGB
             }
         }
+        File? shastaGfa_t = select_first([shasta_t.shastaGfa, shasta_inmem_t.shastaGfa, shastaGFA])
+        File? shastaLog_t = select_first([shasta_t.shastaLog, shasta_inmem_t.shastaLog, shastaLOG])
+        File? shastaHtml_t = select_first([shasta_t.shastaHtml, shasta_inmem_t.shastaHtml, shastaHTML])
+
     }
     File ambFasta = select_first([shasta_t.shastaFasta, shasta_inmem_t.shastaFasta, shastaFasta])
-    File shastaGfa_ = select_first([shasta_t.shastaGfa, shasta_inmem_t.shastaGfa])
-    File shastaLog_ = select_first([shasta_t.shastaLog, shasta_inmem_t.shastaLog])
-
     
-	### minimap2 alignment ###
-    if(length(chunkedReadsFiles) == 0){
-	    call minimap2_t.minimap2_t as minimap2 {
-		    input:
-			reads = readsFile,
-            reference=ambFasta,
-			useEqx=false,
-            threads = threads
-	    }
-    }
-    if(length(chunkedReadsFiles) > 0){
-        scatter (readChunk in chunkedReadsFiles){
-	        call minimap2_t.minimap2_t as minimap2_chunk {
-		        input:
-			    reads = readChunk,
+
+    if(!defined(readAlign)){
+        ### minimap2 alignment ###
+        if(length(chunkedReadsFiles) == 0){
+            call minimap2_t.minimap2_t as minimap2 {
+                input:
+                reads = readsFile,
                 reference=ambFasta,
-			    useEqx=false,
-                preemptible=preemptible,
-			    threads = threads
-	        }
+                useEqx=false,
+                threads = threads
+            }
+        }
+        if(length(chunkedReadsFiles) > 0){
+            scatter (readChunk in chunkedReadsFiles){
+                call minimap2_t.minimap2_t as minimap2_chunk {
+                    input:
+                    reads = readChunk,
+                    reference=ambFasta,
+                    useEqx=false,
+                    preemptible=preemptible,
+                    threads = threads
+                }
+            }
+
+            call minimap2_t.mergeBAM as mergeBAMhapdup {
+                input:
+                bams = minimap2_chunk.bam
+            }
         }
 
-        call minimap2_t.mergeBAM as mergeBAMhapdup {
-		    input:
-			bams = minimap2_chunk.bam
-	    }
-    }
 
-    File bamFile = select_first([minimap2.bam, mergeBAMhapdup.bam])
+    }
+	
+
+    File bamFile = select_first([minimap2.bam, mergeBAMhapdup.bam, readAlign])
 
 	### hapdup
 	call hapdup_t.hapdup_t as hapdup_t {
@@ -100,7 +111,8 @@ workflow structuralVariantsDenovoAssembly {
         File phaseBed1 = hapdup_t.hapdupPhaseBed1
         File phaseBed2 = hapdup_t.hapdupPhaseBed2 
 		File shastaHaploid = ambFasta
-        File ShastaGFA = shastaGfa_
-		File shastaLog = shastaLog_
+        File? shastaGfa = shastaGfa_t
+		File? shastaLog = shastaLog_t
+        File? shastaHtml = shastaHtml_t
 	}
 }
