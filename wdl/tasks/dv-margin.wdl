@@ -107,7 +107,8 @@ task margin_t {
 
     bgzip output/~{sampleName}.phased.vcf
 
-    margin phase reads.bam ref.fa ~{gvcfFile} /opt/margin/params/phase/allParams.haplotag.ont-r104q20.json -t ~{threads} ~{marginOtherArgs} -o output/~{sampleName}.g
+    # Don't output a bam (-M) for gVCF phasing
+    margin phase reads.bam ref.fa ~{gvcfFile} /opt/margin/params/phase/allParams.haplotag.ont-r104q20.json -t ~{threads} ~{marginOtherArgs} -o output/~{sampleName}.g -M
 
     bgzip output/~{sampleName}.g.phased.vcf
 
@@ -136,9 +137,9 @@ task mergeVCFs {
     Array[File] vcfFiles
     Array[File] gvcfFiles
     String outname = "merged"
-    Int memSizeGb = 64
+    Int memSizeGb = 64   # this can probably be reduced again..
     Int diskSizeGb = 5 * round(size(vcfFiles, 'G')) + 5 * round(size(gvcfFiles, 'G')) + 500
-  }  
+  }
 
   command <<<
     set -o pipefail

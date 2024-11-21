@@ -5,8 +5,6 @@ import "../tasks/dv-margin.wdl" as dv_margin_t
 import "../tasks/sniffles.wdl" as sniffles_t
 import "../tasks/hapdiff.wdl" as hapdiff_t
 import "../tasks/dipcall.wdl" as dipcall_t
-#changed this to modkit
-#import "../tasks/modbam2bed.wdl" as modbam2bed_t
 import "../tasks/modkit.wdl" as modkit_t
 import "shasta_hapdup_denovo.wdl" as denovo_asm_wf
 import "marginPhase.wdl" as margin_phase_wf
@@ -165,33 +163,7 @@ workflow cardEndToEndVcfMethyl
     }
 
 
-    ##### estimate methylation at CpG sites
-    ## only if the input reads file was a BAM
-    if (length(inputMappedBams) > 0){
-        File mappedBAM1 = select_first(inputMappedBams)
-    }
-    if (length(inputReads) > 0){
-        File mappedRead1 = select_first(inputReads)
-    }
-    File inReadFile = select_first([mappedRead1, mappedBAM1])
-    if(basename(inReadFile, ".bam") != basename(inReadFile)){
-        call modkit_t.modkit as modkit {
-            input:
-                haplotaggedBam = margin_t.haplotaggedBam,
-                haplotaggedBamBai = margin_t.haplotaggedBamIdx,
-                ref = referenceFasta,
-                sample_name = sampleName
-        }
-    }
-
-    ##### Reference-based structural variant calling
-    call sniffles_t.sniffles_t as sniffles {
-        input:
-            bamAlignment = margin_t.haplotaggedBam,
-            bamAlignmentIndex = margin_t.haplotaggedBamIdx,
-            vntrAnnotations = referenceVntrAnnotations,
-            sample = sampleName
-    }
+    
 
     ##### De novo phased assembly
 
@@ -253,15 +225,51 @@ workflow cardEndToEndVcfMethyl
             sampleName = sampleName
     }
 
+
+    ##### Reference-based structural variant calling
+    call sniffles_t.sniffles_t as sniffles {
+        input:
+            #bamAlignment = margin_t.haplotaggedBam,
+            #bamAlignmentIndex = margin_t.haplotaggedBamIdx,
+            bamAlignment = margin_phase.out_margin_phase_bam,
+            bamAlignmentIndex = margin_phase.out_margin_phase_bam_bai,
+            vntrAnnotations = referenceVntrAnnotations,
+            sample = sampleName
+    }
+
+
+    ##### estimate methylation at CpG sites
+    ## only if the input reads file was a BAM
+    if (length(inputMappedBams) > 0){
+        File mappedBAM1 = select_first(inputMappedBams)
+    }
+    if (length(inputReads) > 0){
+        File mappedRead1 = select_first(inputReads)
+    }
+    File inReadFile = select_first([mappedRead1, mappedBAM1])
+    if(basename(inReadFile, ".bam") != basename(inReadFile)){
+        call modkit_t.modkit as modkit {
+            input:
+                haplotaggedBam = margin_phase.out_margin_phase_bam,
+                haplotaggedBamBai = margin_phase.out_margin_phase_bam_bai,
+                ref = referenceFasta,
+                sample_name = sampleName
+        }
+    }
+
     output {
-        File phasedBam = margin_t.haplotaggedBam
+        File harmonizedPhasedBam = margin_phase.out_margin_phase_bam
+        File harmonizedPhasedBamBai = margin_phase.out_margin_phase_bam_bai
+        File harmonizedVcf = margin_phase.out_margin_phase_svs
+        #File phasedBam = margin_t.haplotaggedBam
         File smallVariantsVcf = margin_t.phasedVcf
         File smallVariantsgVcf = margin_t.phasedgVcf
         File snifflesVcf = sniffles.snifflesVcf
         File snifflesSnf = sniffles.snifflesSnf
         File shastaHaploid = asm.shastaHaploid
-        File? shastaLog = asm.shastaLog
-        File? shastaGFA = asm.ShastaGFA
+        #File? shastaLog = asm.shastaLog
+        #File? shastaGFA = asm.shastaGfa
+        #File? shastaHtml = asm.shastaHtml
         File assemblyHap1 = asm.asmPhased1
         File assemblyHap2 = asm.asmPhased2
         File asmHap1PhaseBed = asm.phaseBed1
@@ -269,11 +277,15 @@ workflow cardEndToEndVcfMethyl
         File assemblyDual1 = asm.asmDual1
         File assemblyDual2 = asm.asmDual2
         File structuralVariantsVcf = hapdiff.hapdiffUnphasedVcf
-        File harmonizedVcf = margin_phase.out_margin_phase_svs
+        File alignmentBedHap1 = hapdiff.alignmentBedHap1
+        File alignmentBedHap2 = hapdiff.alignmentBedHap2
+        File alignmentConfidantBed = hapdiff.confidentBed
         File? methylationBed1 = modkit.hap1bedOut
         File? methylationBed2 = modkit.hap2bedOut
+        File? methylationBedUngrouped = modkit.ungroupedBedOut
+        File? methylationBedUnPhased = modkit.wholeGenomeOut
         File asmDipcallVcf = dipcall.dipcallVcf
-        Array[File]? chr_bams = bamChrs
-        Array[File]? chr_bams_idx = bamChrsIndex
+        #Array[File]? chr_bams = bamChrs
+        #Array[File]? chr_bams_idx = bamChrsIndex
     }
 }

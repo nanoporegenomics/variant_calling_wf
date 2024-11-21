@@ -99,6 +99,7 @@ task shasta_t {
   output {
     File shastaFasta = "ShastaRun/Assembly.fasta"
     File shastaGfa = "ShastaRun/Assembly.gfa"
+    File shastaHtml = "ShastaRun/AssemblySummary.html"
     File shastaLog = "shasta.log.tar.gz"
   }
 
@@ -159,6 +160,7 @@ task shasta_inmem_t {
   output {
     File shastaFasta = "ShastaRun/Assembly.fasta"
     File shastaGfa = "ShastaRun/Assembly.gfa"
+    File shastaHtml = "ShastaRun/AssemblySummary.html" 
     File shastaLog = "shasta.log.tar.gz"
   }
 

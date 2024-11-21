@@ -53,9 +53,9 @@ workflow structuralVariantsDenovoAssembly {
         }
     }
     File ambFasta = select_first([shasta_t.shastaFasta, shasta_inmem_t.shastaFasta, shastaFasta])
-    File? shastaGfa_t = select_first([shasta_t.shastaGfa, shasta_inmem_t.shastaGfa, shastaGFA])
-    File? shastaLog_t = select_first([shasta_t.shastaLog, shasta_inmem_t.shastaLog, shastaLOG])
-    File? shastaHtml_t = select_first([shasta_t.shastaHtml, shasta_inmem_t.shastaHtml, shastaHTML])
+    #File? shastaGfa_t = select_first([shasta_t.shastaGfa, shasta_inmem_t.shastaGfa, shastaGFA])
+    #File? shastaLog_t = select_first([shasta_t.shastaLog, shasta_inmem_t.shastaLog, shastaLOG])
+    #File? shastaHtml_t = select_first([shasta_t.shastaHtml, shasta_inmem_t.shastaHtml, shastaHTML])
 
     if(!defined(readAlign)){
         ### minimap2 alignment ###
@@ -109,8 +109,8 @@ workflow structuralVariantsDenovoAssembly {
         File phaseBed1 = hapdup_t.hapdupPhaseBed1
         File phaseBed2 = hapdup_t.hapdupPhaseBed2 
 		File shastaHaploid = ambFasta
-        File? shastaGfa = shastaGfa_t
-		File? shastaLog = shastaLog_t
-        File? shastaHtml = shastaHtml_t
+        #File? shastaGfa = shastaGfa_t
+		#File? shastaLog = shastaLog_t
+        #File? shastaHtml = shastaHtml_t
 	}
 }
