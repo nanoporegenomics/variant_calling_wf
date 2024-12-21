@@ -20,6 +20,7 @@ workflow runMarginPhase {
                 sampleName = sampleName,
                 dockerImage = dockerImage
         }
+    }
 
     File combinedVariantVCF = select_first([harmonizedVariantFile, combineVcfs.outVcf])
 
