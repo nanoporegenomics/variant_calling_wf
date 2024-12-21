@@ -109,7 +109,7 @@ task marginPhase {
         mkdir output/
         margin phase ~{bamFile} ~{refFile} ~{combinedVcfFile} /opt/margin/params/phase/allParams.phase_vcf.ont.sv.json -t ~{threads} ~{marginOtherArgs} -o output/~{sampleName}_hvcf 
 
-        # zip vcf and index bam
+        # gzip vcf and index bam
         bgzip output/~{sampleName}_hvcf.phased.vcf
         samtools index -@ ~{threads} output/~{sampleName}_hvcf.haplotagged.bam
 
