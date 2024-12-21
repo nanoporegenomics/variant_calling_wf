@@ -4,6 +4,7 @@ workflow runMarginPhase {
     input {
         File smallVariantsFile
         File structuralVariantsFile
+        File? harmonizedVariantFile
         File refFile
         File bamFile
         String sampleName
@@ -11,17 +12,20 @@ workflow runMarginPhase {
         File? resourceLogScript
     }
 
-    call combineVcfs {
-        input:
-            smallVariantsFile = smallVariantsFile,
-            structuralVariantsFile = structuralVariantsFile,
-            sampleName = sampleName,
-            dockerImage = dockerImage
-    }
+    if(!defined(harmonizedVariantFile)){
+        call combineVcfs {
+            input:
+                smallVariantsFile = smallVariantsFile,
+                structuralVariantsFile = structuralVariantsFile,
+                sampleName = sampleName,
+                dockerImage = dockerImage
+        }
+
+    File combinedVariantVCF = select_first([harmonizedVariantFile, combineVcfs.outVcf])
 
     call marginPhase {
         input:
-        combinedVcfFile = combineVcfs.outVcf,
+        combinedVcfFile = combinedVariantVCF,
         refFile = refFile,
         bamFile = bamFile,
         sampleName = sampleName,
