@@ -8,6 +8,7 @@ workflow runMarginPhase {
         File refFile
         File bamFile
         String sampleName
+        Int preemptible_count = 2
         String dockerImage = "mkolmogo/card_harmonize_vcf:0.1"
         File? resourceLogScript
     }
@@ -31,6 +32,7 @@ workflow runMarginPhase {
         bamFile = bamFile,
         sampleName = sampleName,
         dockerImage = dockerImage,
+        preemptible_count = preemptible_count,
         resourceLogScript = resourceLogScript
     }
 
@@ -92,8 +94,9 @@ task marginPhase {
         String sampleName
         String dockerImage
         String marginOtherArgs = ""
+        Int preemptible_count
         Int threads = 32
-        Int memSizeGb = 64
+        Int memSizeGb = 2 * round(size(bamFile, 'G')) + 100
         Int diskSizeGb = 256
         File? resourceLogScript
     }
@@ -127,7 +130,7 @@ task marginPhase {
     }
 
     runtime {
-        preemptible: 2
+        preemptible: preemptible_count
         memory: memSizeGb + " GB"
         cpu: threads
         disks: "local-disk " + diskSizeGb + " SSD"
