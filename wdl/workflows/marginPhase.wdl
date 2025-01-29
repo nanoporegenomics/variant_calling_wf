@@ -97,7 +97,7 @@ task marginPhase {
         Int preemptible_count
         Int threads = 32
         Int memSizeGb = 2 * round(size(bamFile, 'G')) + 100
-        Int diskSizeGb = 256
+        Int diskSizeGb = 2 * round(size(bamFile, 'G')) + round(size(ref, 'G')) + 100
         File? resourceLogScript
     }
     command <<<
