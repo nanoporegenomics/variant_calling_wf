@@ -1,0 +1,8 @@
+{
+    "regionalMethylation.BEDS":["test_1.bed.gz", "test_2.bed.gz"], 
+    "regionalMethylation.REGION_TYPE":"promoters", 
+    "regionalMethylation.SAMPLE":"test", 
+    "regionalMethylation.REF_NAME":"GRCh38", 
+    "regionalMethylation.REGIONS_BED":"test.promoters.bed", 
+    "regionalMethylation.calcMeth_phased.min_cpg":5
+}

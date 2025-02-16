@@ -26,6 +26,10 @@ miniwdl run --as-me  --copy-input-files wdl/workflows/dvMargin.wdl -i test/test.
 ## shasta workflow
 miniwdl run --as-me  --copy-input-files wdl/tasks/shasta.wdl -i test/test.input.shasta.json
 miniwdl run --as-me  --copy-input-files wdl/tasks/shasta.wdl -i test/test.input.shasta.inmem.json
+
+## regional methylation workflow
+miniwdl run --as-me  -i wdl/tasks/regionalMethylation.wdl -i test/test/test.input.regionalMethylation.phased.json
+
 ```
 
 ### Next
