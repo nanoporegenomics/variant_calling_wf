@@ -55,8 +55,6 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 	sdf = sdf.transpose()
 	print(sdf)
 
-	# process each chromosome separately
-    # for chrom in vcf.header.contigs:
 	# make a variant dictionary 
 	variants = {}
 
