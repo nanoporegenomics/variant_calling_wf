@@ -12,7 +12,7 @@ from multiprocessing import Pool
 	ex: tabix multisample.vcf.gz
 	
 	Usage: 
-	python vcf_to_meta_csv.parallel.py -i multisample.vcf.gz -c HBCC_covs.csv -o combined.meta.csv
+	python vcf_to_meta_csv.parallel.py -i multisample.vcf.gz -c HBCC_covs.csv -o combined.meta.tsv
 
 	output: 
 	A tsv ( or csv if desired ) for each chromosome with metadata and variant information for each sample. 
@@ -33,13 +33,18 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 	covs['SampleId'] = covs['SampleId']+"_FTX"
 	covs.set_index("SampleId", inplace=True)
 
+	cov_samples = list(covs.index)
+	print(cov_samples)
+
 	
 
 	# open the vcf with pysam
 	vcf = pysam.VariantFile(vcf_file)
 
 	# set up a dictionary to store the samples as rows
-	sample_names = list(vcf.header.samples)
+	# sample_names = list(vcf.header.samples)
+	# only use samples in the covariate file instead of all the ones in the vcf
+	sample_names = cov_samples
 	sample_records = {}
 	for s in sample_names:
 		for hap in ['H0','H1']:
@@ -66,22 +71,26 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
         # for each sample in the vcf
 		for sample in record.samples:
 
-			# get the genotypes 
-			genotype = record.samples[sample]["GT"]
-			# print(sample, genotype[0], genotype[1], variant_id)
+			# if this sample is in the cov file store it's genotypes
+			if sample in cov_samples:
 
-			# store each genotype under it's variant id and sample haplotype id
-			if genotype[0] is not None:
-				variants[variant_id][sample+"_H0"]=str(genotype[0])
-				variants[variant_id][sample+"_H1"]=str(genotype[1])
-			else:
-				# could change to None if that is better
-				variants[variant_id][sample+"_H0"]="."
-				variants[variant_id][sample+"_H1"]="."
+				# get the genotypes 
+				genotype = record.samples[sample]["GT"]
+				# print(sample, genotype[0], genotype[1], variant_id)
+				
+				# store each genotype under it's variant id and sample haplotype id
+				if genotype[0] is not None:
+					variants[variant_id][sample+"_H0"]=str(genotype[0])
+					variants[variant_id][sample+"_H1"]=str(genotype[1])
+				else:
+					# could change to None if that is better
+					variants[variant_id][sample+"_H0"]="."
+					variants[variant_id][sample+"_H1"]="."
 
 
 	# convert the variants to  a DataFrame
 	vdf = pd.DataFrame(variants)
+
 
 	# combine the meta data and the variants 
 	meta_variant_sdf = pd.concat([sdf, vdf], axis=1)
@@ -134,6 +143,13 @@ if __name__ == "__main__":
 		help="Path to the output csv file."
 	)
 
+	# add optional argument for the chromosomes to run on
+	parser.add_argument(
+		'--chromosomes', 
+		nargs='*', 
+		default=None, 
+		help="List of chromosomes to process (optional). If not provided, all chromosomes will be used.")
+
 
 	if len(sys.argv) == 0:
 		parser.print_help(sys.stderr)
@@ -145,14 +161,17 @@ if __name__ == "__main__":
 	# process whole file at once
 	# vcf_to_csv(args.in_vcf, args.cov_csv, args.out_csv)
 
-	# make a list of chromosomes in the vcf header 
-	vcfh = pysam.VariantFile(args.in_vcf)
-	chromosomes = list(vcfh.header.contigs.keys())
-	# print(chromosomes)
-	vcfh.close()
+	# if no chromosomes are provided, use all chromosomes from the VCF header
+	if args.chromosomes is None:
+
+		# make a list of chromosomes in the vcf header 
+		vcfh = pysam.VariantFile(args.in_vcf)
+		args.chromosomes = list(vcfh.header.contigs.keys())
+		# print(chromosomes)
+		vcfh.close()
 
 	# run each chromosome in a different thread 
-	process_chromosomes_in_parallel(args.in_vcf, args.cov_csv, args.out_csv, chromosomes)
+	process_chromosomes_in_parallel(args.in_vcf, args.cov_csv, args.out_csv, args.chromosomes)
 
 
 
