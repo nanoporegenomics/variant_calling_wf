@@ -34,7 +34,7 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 	covs.set_index("SampleId", inplace=True)
 
 	cov_samples = list(covs.index)
-	print(cov_samples)
+	# print(cov_samples)
 
 	
 
@@ -58,7 +58,7 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 	# reformat to make samples's rows
 	sdf = pd.DataFrame(sample_records)
 	sdf = sdf.transpose()
-	print(sdf)
+	# print(sdf)
 
 	# make a variant dictionary 
 	variants = {}
