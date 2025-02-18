@@ -23,7 +23,7 @@ from multiprocessing import Pool
 	02/2025
 """
 
-def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
+def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file, meta_columns):
 
 	start_time = time.time()  
 	print(f"Process {chrom} at: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time))}")
@@ -33,7 +33,10 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 	if covariant_file[-4:]==".tsv":
 		delimiter="\t"
 	covs = pd.read_csv(covariant_file, sep=delimiter)
-	covs['SampleId'] = covs['SampleId']+"_FTX"
+
+	# if the sample ID's don't end with FTX
+	if not covs['SampleId'].iloc[0].endswith("_FTX"):
+		covs['SampleId'] = covs['SampleId']+"_FTX"
 	covs.set_index("SampleId", inplace=True)
 
 	cov_samples = list(covs.index)
@@ -42,7 +45,7 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 
 	
 
-	# open the vcf with pysam
+	# open the vcf with pysamhead ../
 	vcf = pysam.VariantFile(vcf_file)
 
 	# set up a dictionary to store the samples as rows
@@ -54,7 +57,7 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 		for hap in ['H0','H1']:
 			sample_records[s+"_"+hap] = {}
 			sample_records[s+"_"+hap]['hap'] = hap[-1]
-			for col in list(covs.columns)[0:5]:
+			for col in list(covs.columns)[0:(int(meta_columns)+1)]:
 				sample_records[s+"_"+hap][col] = covs.loc[s][col]
 
 			# sample_records[s+"_"+hap] = {"hap":hap[-1], 
@@ -118,10 +121,10 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 
 
 # process each chromosome in parallel
-def process_chromosomes_in_parallel(vcf_file, cov_csv, output_csv, chromosomes):
+def process_chromosomes_in_parallel(vcf_file, cov_csv, output_csv, chromosomes, meta_columns):
     # create a pool of worker processes
     with Pool() as pool:
-        pool.starmap(vcf_to_csv, [(chrom, vcf_file, cov_csv, output_csv) for chrom in chromosomes])
+        pool.starmap(vcf_to_csv, [(chrom, vcf_file, cov_csv, output_csv, meta_columns) for chrom in chromosomes])
 
 
 
@@ -159,6 +162,14 @@ if __name__ == "__main__":
 		default=None, 
 		help="List of chromosomes to process (optional). If not provided, all chromosomes will be used.")
 
+	# add argument for the output file
+	parser.add_argument(
+		"--meta_columns",
+		type=int,
+		default=3,
+		help="metadata colunms to keep."
+	)
+
 
 	if len(sys.argv) == 0:
 		parser.print_help(sys.stderr)
@@ -180,7 +191,7 @@ if __name__ == "__main__":
 		vcfh.close()
 
 	# run each chromosome in a different thread 
-	process_chromosomes_in_parallel(args.in_vcf, args.cov_csv, args.out_csv, args.chromosomes)
+	process_chromosomes_in_parallel(args.in_vcf, args.cov_csv, args.out_csv, args.chromosomes, args.meta_columns)
 
 
 
