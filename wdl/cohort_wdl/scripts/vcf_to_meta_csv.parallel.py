@@ -12,7 +12,11 @@ from multiprocessing import Pool
 	ex: tabix multisample.vcf.gz
 	
 	Usage: 
-	python vcf_to_meta_csv.parallel.py -i multisample.vcf.gz -c HBCC_covs.csv -o combined.meta.tsv
+	python vcf_to_meta_csv.parallel.py -i multisample.vcf.gz -c HBCC_covs.csv -o combined.meta.tsv 
+
+	Optional arguments: 
+	--chromosomes "chr20"  # give it a single chromsome to test on
+	--meta_columns 3       # select number of columns to keep, default 3
 
 	output: 
 	A tsv ( or csv if desired ) for each chromosome with metadata and variant information for each sample. 
