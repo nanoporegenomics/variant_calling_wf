@@ -29,12 +29,16 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 	print(f"Process {chrom} at: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_time))}")
 
 	# read in metadata and reformat ids to match vcf
-	covs = pd.read_csv(covariant_file)
+	delimiter=","
+	if covariant_file[-4:]==".tsv":
+		delimiter="\t"
+	covs = pd.read_csv(covariant_file, sep=delimiter)
 	covs['SampleId'] = covs['SampleId']+"_FTX"
 	covs.set_index("SampleId", inplace=True)
 
 	cov_samples = list(covs.index)
 	# print(cov_samples)
+
 
 	
 
@@ -49,12 +53,17 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 	for s in sample_names:
 		for hap in ['H0','H1']:
 			sample_records[s+"_"+hap] = {}
-			sample_records[s+"_"+hap] = {"hap":hap[-1], 
-										"age":covs.loc[s]['AgeDeath'], 
-										'sex':covs.loc[s]['Sex at Birth'],
-										'PMI':covs.loc[s]['PMI'],
-										'ancestry':covs.loc[s]['Race'],
-										'brainRegion':covs.loc[s]['Region']}
+			sample_records[s+"_"+hap]['hap'] = hap[-1]
+			for col in list(covs.columns)[0:5]:
+				sample_records[s+"_"+hap][col] = covs.loc[s][col]
+
+			# sample_records[s+"_"+hap] = {"hap":hap[-1], 
+			# 							"age":covs.loc[s]['AgeDeath'], 
+			# 							'sex':covs.loc[s]['Sex at Birth'],
+			# 							'PMI':covs.loc[s]['PMI'],
+			# 							'ancestry':covs.loc[s]['Race'],
+			# 							'brainRegion':covs.loc[s]['Region']}
+
 	# reformat to make samples's rows
 	sdf = pd.DataFrame(sample_records)
 	sdf = sdf.transpose()
@@ -68,7 +77,7 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file):
 		variant_id = f"{record.chrom}_{record.pos}_{record.ref}_{record.alts[0]}" 
 		variants[variant_id] = {}
 
-        # for each sample in the vcf
+		# for each sample in the vcf
 		for sample in record.samples:
 
 			# if this sample is in the cov file store it's genotypes
