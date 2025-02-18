@@ -42,3 +42,6 @@ workflows:
    -  name: bedtoolsMapwf
       subclass: WDL
       primaryDescriptorPath: /wdl/workflows/bedtoolsMap.wdl
+   -  name: regionalMethylationwf
+      subclass: WDL
+      primaryDescriptorPath: /wdl/tasks/regionalMethylation.wdl
