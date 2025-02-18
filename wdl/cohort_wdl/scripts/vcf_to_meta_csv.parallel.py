@@ -125,9 +125,9 @@ def vcf_to_csv(chrom, vcf_file, covariant_file, csv_file, meta_columns):
 
 
 # process each chromosome in parallel
-def process_chromosomes_in_parallel(vcf_file, cov_csv, output_csv, chromosomes, meta_columns):
+def process_chromosomes_in_parallel(vcf_file, cov_csv, output_csv, chromosomes, meta_columns, nprocesses):
     # create a pool of worker processes
-    with Pool() as pool:
+    with Pool(processes=nprocesses) as pool:
         pool.starmap(vcf_to_csv, [(chrom, vcf_file, cov_csv, output_csv, meta_columns) for chrom in chromosomes])
 
 
@@ -157,6 +157,14 @@ if __name__ == "__main__":
 		type=str,
 		required=True,
 		help="Path to the output csv file."
+	)
+
+	# add argument for threads to use, number of chr's to run at once
+	parser.add_argument(
+		"-t","--threads",
+		type=int,
+		default=3,
+		help="threads."
 	)
 
 	# add optional argument for the chromosomes to run on
@@ -195,7 +203,7 @@ if __name__ == "__main__":
 		vcfh.close()
 
 	# run each chromosome in a different thread 
-	process_chromosomes_in_parallel(args.in_vcf, args.cov_csv, args.out_csv, args.chromosomes, args.meta_columns)
+	process_chromosomes_in_parallel(args.in_vcf, args.cov_csv, args.out_csv, args.chromosomes, args.meta_columns, args.threads)
 
 
 
