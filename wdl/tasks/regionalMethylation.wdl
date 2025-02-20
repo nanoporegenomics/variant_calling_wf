@@ -148,14 +148,11 @@ task calcMeth_phased {
 
 		# Sort regions file
 		sort -k1,1 -k2,2n -k3,3n ~{regions_bed} > regions.sort.bed
-		echo "passed 1"
-
 		# Sort BED files
 		FID=1
 		for FF in ~{sep=" " bedMethyls}
 		do
 			zcat $FF | sort -k1,1 -k2,2n -k3,3n > samp.hp${FID}.UF.bed
-			echo "passed 2"
 			# Remove mods with low coverage and sort file to match sorting criteria with regions_bed
 			awk -v c=~{cov} '$5>=c' samp.hp${FID}.UF.bed > samp.hp${FID}.bed
 			# Count number of "total" measured CpGs per target region
