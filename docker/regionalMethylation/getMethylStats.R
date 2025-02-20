@@ -24,8 +24,11 @@ if (is.null(args$input)) {
 # Read the TSV input file
 bedmap.df <- fread(args$input, sep = "\t")
 ncols=ncol(bedmap.df)
-colnames(bedmap.df) <- c("chrom", "start", "end", "region_name", paste0("col_", 5:(ncols-7)), 
-                   "n_total", "n_pass", "mean_methyl", "mean_cov", "pass_meth_values", "pass_cov_values", "pass_pos_values")
+if (ncols == 11) {
+  colnames(bedmap.df) <- c("chrom", "start", "end", "region_name", "n_total", "n_pass", "mean_methyl", "mean_cov", "pass_meth_values", "pass_cov_values", "pass_pos_values")
+} else {
+  colnames(bedmap.df) <- c("chrom", "start", "end", "region_name", paste0("col_", 5:(ncols-7)), "n_total", "n_pass", "mean_methyl", "mean_cov", "pass_meth_values", "pass_cov_values", "pass_pos_values")
+}
 
 # Compute standard deviations for methylation and coverage values
 bedmap.df <- bedmap.df %>%
